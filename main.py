@@ -1,26 +1,18 @@
 import discord
-from discord.ext import commands
 import os
 
-client = commands.Bot(command_prefix=".")
-##token = os.getenv("DISCORD_BOT_TOKEN")
+client = discord.Client()
 
 @client.event
-async def on_ready() :
-    await client.change_presence(status = discord.Status.idle, activity = discord.Game("Listening to .help"))
-    print("I am online")
+async def on_ready():
+    print('We have logged in as {0.user}'.format(client))
 
-@client.command()
-async def ping(ctx) :
-    await ctx.send(f"🏓 Pong with {str(round(client.latency, 2))}")
+@client.event
+async def on_message(message):
+    if message.author == client.user:
+        return
 
-@client.command(name="whoami")
-async def whoami(ctx) :
-    await ctx.send(f"You are {ctx.message.author.name}")
-
-@client.command()
-async def clear(ctx, amount=3) :
-    await ctx.channel.purge(limit=amount)
-
+    if message.content.startswith('.hello'):
+        await message.channel.send('Hello!')
 
 client.run('ODA4NDE1ODg5ODc1NjY0OTI3.YCGN9w.qIBD2q-uteQ_YIyEYeubBFVCNhk')
