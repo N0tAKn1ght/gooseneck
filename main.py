@@ -6,7 +6,7 @@ from discord.ext import commands
 from discord.ext import files
 
 from PIL import Image, ImageDraw, ImageFont
-import io
+
 
 client = commands.Bot(command_prefix = ".")
 token = 'ODA4NDE1ODg5ODc1NjY0OTI3.YCGN9w.qIBD2q-uteQ_YIyEYeubBFVCNhk'
