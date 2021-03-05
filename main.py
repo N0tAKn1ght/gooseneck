@@ -63,9 +63,9 @@ async def hep_cmd(ctx) :
 async def image(ctx):
     embed =Embed(title = "Alpaca 10", description = "Alpaca image", color = 0xa1ffb0)
     fields = [("Name", "value", True)]
-    for name, value, in fields:
-        embed.add_field(name = name, value=value, inline=inline)
-    embed.set_footer(text="Alpaca")
+    #for name, value, in fields:
+    #    embed.add_field(name = name, value=value, inline=inline)
+    #embed.set_footer(text="Alpaca")
     #embed.set_image(file = discord.File('game_pics/Alpaca_10.jpg'))
     await ctx.send(embed = embed)
 
