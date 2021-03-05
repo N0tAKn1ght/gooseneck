@@ -61,3 +61,5 @@ async def hep_cmd(ctx) :
 async def randomNumber(ctx):
     embed = discord.Embed(title = "card check", description = (random.randint(1, 18)), color = 0xa1ffb0)
     await ctx.send(embed = embed)
+
+client.run(token)
