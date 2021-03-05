@@ -58,8 +58,8 @@ async def hep_cmd(ctx) :
     await ctx.send("Display info about given card")
 
 @client.command(pass_context = True)
-async def randomNumber(ctx):
-    embed = discord.Embed(title = "card check", description = (random.randint(1, 18)), color = 0xa1ffb0)
+async def image(ctx):
+    embed = discord.Embed(title = "Alpaca 10", file = discord.File('Alpaca_10.jpg'), color = 0xa1ffb0)
     await ctx.send(embed = embed)
 
 client.run(token)
