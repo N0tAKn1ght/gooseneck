@@ -66,7 +66,8 @@ async def image(ctx):
     #for name, value, in fields:
     #    embed.add_field(name = name, value=value, inline=inline)
     #embed.set_footer(text="Alpaca")
-    #embed.set_image(file = discord.File('game_pics/Alpaca_10.jpg'))
+    embed.attachFiles(['game_pics/Alpaca_10.jpg'])
+    embed.setImage('attachment:://Alpaca_10.jpg])
     await ctx.send(embed = embed)
 
 client.run(token)
