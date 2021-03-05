@@ -3,7 +3,7 @@ import discord
 import asyncio
 import os
 from discord.ext import commands
-from discord.ext import embed
+from discord.ext import Embed
 
 
 client = commands.Bot(command_prefix = ".")
