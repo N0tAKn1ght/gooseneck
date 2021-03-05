@@ -1,39 +1,60 @@
 import discord
+from discord.ext import commands
 import os
 import asyncio
 import asyncpg
 
-client = discord.Client()
-async def run():
-    description = "GooseNeck bot"
-    credentials = {"user": "USERNAME", "password": "MoonS00n1342!", "database": "gooseneck", "host": "172.17.0.1"}
-    db = await asyncpg.create_pool(**credentials)
-    await db.execute("CREATE TABLE IF NOT EXISTS users(id bigint PRIMARY KEY, data text);")
-
-    bot = Bot(description = description, db = db)
-    try:
-        await bot.start(config.token)
-    except KeyboardInterrupt:
-        await db.close()
-        await bot.logout()
-    
-@client.event
-async def on_ready():
-    print('We have logged in as {0.user}'.format(client))
+client = commands.Bot(command_prefix=".")
+token = os.getenv("DISCORD_BOT_TOKEN")
 
 @client.event
-async def on_message(message):
-    if message.author == client.user:
-        return
+async def on_ready() :
+    await client.change_presence(status = discord.Status.idle, activity = discord.Game("Listening to .help"))
+    print("I am online")
 
-    if message.content.startswith('.hello'):
-        await message.channel.send('Hello!')
+@client.command()
+async def ping(ctx) :
+    await ctx.send(f":ping_pong: Pong with {str(round(client.latency, 2))}")
 
-@client.event
-async def on_message(message):
-    if message.author == client.user:
-        return
+@client.command(name="whoami")
+async def whoami(ctx) :
+    await ctx.send(f"You are {ctx.message.author.name}")
 
-    if message.content.startswith('.help'):
-        await message.channel.send('Hello!')
+# Says hello, used to see if bot is online
+@client.command(name="hello")
+async def hello(ctx) :
+    await ctx.send("Howdy!")
+
+# Help Command, will redirect user to site to see list of command
+# Quick and easy guide to start 
+@client.command(name="hep")
+async def hep(ctx) :
+    await ctx.send("This is the help command")
+
+# In-Depth help command, used for full list of commands
+@client.command(name="hep_cmd")
+async def hep_cmd(ctx) :
+    await ctx.send("In-Depth help")
+
+# User can get to our site, for more info, invite to new server, etc
+@client.command(name="home")
+async def home(ctx) :
+    await ctx.send("Will send user to home page site :D")
+
+# Will initiate user to base, give a preset amount of resources to get started with the game
+@client.command(name="start")
+async def start(ctx) :
+    await ctx.send("Initiate game")
+
+# Will perform functions (To be imported later), to give user a card and decide rarity
+@client.command(name="roll")
+async def roll(ctx) :
+    await ctx.send("Will run 2 random functions, deciding card and rarity they obtain")
+
+# Given a card ID, will display information about card
+# i.e. Name of Card, date obtained, rarity, etc
+@client.command(name="info")
+async def hep_cmd(ctx) :
+    await ctx.send("Display info about given card")
+
 client.run('ODA4NDE1ODg5ODc1NjY0OTI3.YCGN9w.qIBD2q-uteQ_YIyEYeubBFVCNhk')
