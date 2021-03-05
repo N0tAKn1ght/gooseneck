@@ -61,7 +61,7 @@ async def hep_cmd(ctx) :
 
 @client.command(pass_context = True)
 async def image(ctx):
-    embed =Embed(title = "Alpaca 10", description = "Alpaca image", image = 'https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.nbcnews.com%2Ftechnolog%2Fno-googling-says-google-unless-you-really-mean-it-1C9078566&psig=AOvVaw1dSpXwfXbmmWsQLqHbhw7c&ust=1615058177166000&source=images&cd=vfe&ved=0CAIQjRxqFwoTCPiVndnume8CFQAAAAAdAAAAABAD', color = 0xa1ffb0)
+    embed =Embed(title = "Alpaca 10", description = "Alpaca image", image = file, color = 0xa1ffb0)
     file = discord.File("games_pics/Alpaca10.jpg", filename="Alpaca")
     await ctx.send(embed=embed)
 client.run(token)
