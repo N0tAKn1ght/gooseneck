@@ -55,8 +55,9 @@ async def roll(ctx) :
 # i.e. Name of Card, date obtained, rarity, etc
 @client.command(name="info")
 async def hep_cmd(ctx) :
-    await ctx.send("Display info about given card")
-
+    embed = discord.Embed(title = "card check", description = ("Display info about given card")), color = 0xa1ffb0)
+    await ctx.send(embed = embed)
+    
 @client.command(pass_context = True)
 async def randomNumber(ctx):
     embed = discord.Embed(title = "card check", description = (random.randint(1, 18)), color = 0xa1ffb0)
