@@ -5,8 +5,6 @@ import os
 from discord.ext import commands
 from discord.ext import files
 
-from PIL import Image, ImageDraw, ImageFont
-
 
 client = commands.Bot(command_prefix = ".")
 token = 'ODA4NDE1ODg5ODc1NjY0OTI3.YCGN9w.qIBD2q-uteQ_YIyEYeubBFVCNhk'
@@ -63,7 +61,7 @@ async def hep_cmd(ctx) :
 
 @client.command(pass_context = True)
 async def image(ctx):
-    embed = discord.Embed(title = "Alpaca 10", image = Image.open('game_pics/Alpaca_10.jpg'), color = 0xa1ffb0)
+    embed = discord.Embed(title = "Alpaca 10", file = discord.file('game_pics/Alpaca_10.jpg'), color = 0xa1ffb0)
     await ctx.send(embed = embed)
 
 client.run(token)
