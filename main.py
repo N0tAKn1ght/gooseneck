@@ -63,11 +63,4 @@ async def hep_cmd(ctx) :
 async def image(ctx):
     embed =Embed(title = "Alpaca 10", description = "Alpaca image", image = 'attachment::game_pics/Alpaca10.jpg' color = 0xa1ffb0)
     fields = [("Name", "value", True)]
-    #for name, value, in fields:
-    #    embed.add_field(name = name, value=value, inline=inline)
-    #embed.set_footer(text="Alpaca")
-    embed.attachFiles(['game_pics/Alpaca_10.jpg'])
-    embed.setImage(['attachment:://Alpaca_10.jpg])
-    await ctx.send(embed = embed)
-
 client.run(token)
