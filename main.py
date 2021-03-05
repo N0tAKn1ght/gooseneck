@@ -10,7 +10,7 @@ token = 'ODA4NDE1ODg5ODc1NjY0OTI3.YCGN9w.qIBD2q-uteQ_YIyEYeubBFVCNhk'
 
 @client.event
 async def on_ready() :
-    await client.change_presence(status = discord.Status.active, activity = discord.Game("Listening to .help"))
+    await client.change_presence(status = discord.Status.active, activity = discord.Game("Listening to .hep"))
     print("I am online")
 
 @client.command()
