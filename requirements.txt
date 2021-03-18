@@ -1,5 +1,4 @@
 discord.py
 pymongo
 asyncio
-os
 random
