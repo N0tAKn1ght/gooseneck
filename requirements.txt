@@ -1,3 +1,4 @@
 discord.py
 pymongo
 asyncio
+dnspython==2.1.0
