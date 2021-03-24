@@ -1,4 +1,4 @@
 discord.py
-pyscopg2-2binary
+psycopg2-2binary
 asyncio
 dnspython==2.1.0
