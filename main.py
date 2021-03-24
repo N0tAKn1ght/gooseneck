@@ -106,7 +106,7 @@ async def roll(ctx):
         await ctx.send("You need to register first, you silly goose")
         return
     
-    num = random.randint(1, 18)
+    num = random.randint(1, 19)
     rarity = random.randint(1, 100)
     username = str(ctx.author)
     user = ""
