@@ -29,6 +29,16 @@ async def whoami(ctx):
     e = discord.Embed(description = (f"You are {ctx.message.author}"), color = 0xa1ffb0)
     await ctx.send(embed = e)
 
+@client.command(name = "fuck")
+async def whoami(ctx):
+    e = discord.Embed(description = ("Bend over, you silly goose!"), color = 0xa1ffb0)
+    await ctx.send(embed = e)
+
+@client.command(name = "insert")
+async def whoami(ctx):
+    e = discord.Embed(description = ("You like that, you silly goose!"), color = 0xa1ffb0)
+    await ctx.send(embed = e)
+
 # Says hello, used to see if bot is online
 @client.command(name = "hello")
 async def hello(ctx):
