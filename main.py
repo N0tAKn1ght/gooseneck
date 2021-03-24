@@ -30,12 +30,12 @@ async def whoami(ctx):
     await ctx.send(embed = e)
 
 @client.command(name = "fuck")
-async def whoami(ctx):
+async def fuck(ctx):
     e = discord.Embed(description = ("Bend over, you silly goose!"), color = 0xa1ffb0)
     await ctx.send(embed = e)
 
 @client.command(name = "insert")
-async def whoami(ctx):
+async def insert(ctx):
     e = discord.Embed(description = ("You like that, you silly goose!"), color = 0xa1ffb0)
     await ctx.send(embed = e)
 
