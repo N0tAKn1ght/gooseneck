@@ -1,15 +1,21 @@
 import discord
 from discord.ext import commands
-import pymongo
-from pymongo import MongoClient
 import asyncio
 import os
 import random
 from discord import Embed
+from datetime import datetime
+import psycopg2
 
-cluster = MongoClient("mongodb+srv://TD_Laptop:MoonS00n1342!@cluster0.6ojzu.mongodb.net/test")
-db = cluster["GooseNeck"]
-collection = db["User ID"]
+conn = psycopg2.connect(user = "iwjahdoeduzhpw",
+                        password = "61fe7582e319e7889d9571cf574b5f17687504226bbdb3dc89265468f34c5cdc",
+                        host = "ec2-54-161-239-198.compute-1.amazonaws.com",
+                        port = "5432",
+                        database = "d2f6if7qo4eukk",
+                        sslmode='require')
+crsr = conn.cursor()
+print(conn.get_dsn_parameters(),"\n")
+print("Database Connected")
 
 client = commands.Bot(command_prefix = ".")
 token = 'ODA4NDE1ODg5ODc1NjY0OTI3.YCGN9w.qIBD2q-uteQ_YIyEYeubBFVCNhk'
@@ -20,7 +26,7 @@ async def on_ready():
 
 @client.command(name = "whoami")
 async def whoami(ctx):
-    e = discord.Embed(description = (f"You are {ctx.message.author.name}"), color = 0xa1ffb0)
+    e = discord.Embed(description = (f"You are {ctx.message.author}"), color = 0xa1ffb0)
     await ctx.send(embed = e)
 
 # Says hello, used to see if bot is online
@@ -41,376 +47,127 @@ async def hep(ctx):
 async def hep_cmd(ctx):
     e = discord.Embed(description = ("In-Depth help"), color = 0xa1ffb0)
     await ctx.send(embed = e)
-
+"""
+@client.command(name = "play")
+async def play(ctx, url : str, channel : str):
+    voiceChannel = discord.utils.get(ctx.guild.voice_channels, name =channel)
+    voice = discord.utils.get(client.voice_clients, guild =ctx.guild)
+    await voiceChannel.connect()
+"""
 # User can get to our site, for more info, invite to new server, etc
 @client.command(name = "home")
 async def home(ctx):
     e = discord.Embed(description = ("Will send user to home page site :D"), color = 0xa1ffb0)
     await ctx.send(embed = e)
-
-@client.command(name = "info")
-async def hep_cmd(ctx):
+"""
+@client.command(name = "inv")
+async def inventory(ctx):
+    userid = ctx.author.id
+    crsr.execute("SELECT userid FROM userinfo where userid = %s;",[userid]))
     e = discord.Embed(description = ("Display info about given card"), color = 0xa1ffb0)
     await ctx.send(embed = e)
-
-@client.command(name="register")
+"""
+@client.command(name = "register")
 async def on_message(ctx):
-    print(f"{ctx.channel}: {ctx.author}: {ctx.author.name}: {ctx.message}")
-    myquery = { "_id": ctx.author.id }
-    if (collection.count_documents(myquery) == 0):
-        post = {"_id": ctx.author.id, "score": 1}
-        collection.insert_one(post)
-        await ctx.channel.send('Registered!')
-    else:
-        await ctx.channel.send('You Already registered, you silly goose!')
+    userid = ctx.author.id
+    username = str(ctx.author)
+    user = ""
+    for character in username:
+        if character.isalnum():
+            user += character
+    createtable= "CREATE TABLE IF NOT EXISTS " + user + """ (
+        cardname varchar(255),
+        cardrarity varchar (255)
+    );
+    """
+    crsr.execute("SELECT userid FROM userinfo where userid = %s;",[userid])
+    data = crsr.fetchall()
 
-@client.command(name="roll")
+    if not data:
+        crsr.execute("INSERT INTO userinfo (userid,username) VALUES(%s,%s);",[userid,username])
+        conn.commit()
+        crsr.execute(createtable)
+        conn.commit()
+        await ctx.send("You are now registered you silly goose.")
+        
+    else:
+        await ctx.send("You already registered, you silly goose")
+
+@client.command(name = "roll")
 async def roll(ctx):
+    userid = ctx.author.id
+    #if ctx.author.id == 279083868894658561:
+    #    await ctx.send("no more albert")
+    #    return
+    crsr.execute("SELECT userid FROM userinfo where userid = %s;",[userid])
+    data = crsr.fetchall()
+
+    if not data:
+        await ctx.send("You need to register first, you silly goose")
+        return
+    
     num = random.randint(1, 18)
     rarity = random.randint(1, 100)
+    username = str(ctx.author)
+    user = ""
+    for character in username:
+        if character.isalnum():
+            user += character
+            
+    insert = "INSERT INTO "+ user + "(cardname, cardrarity) VALUES (%s, %s);"
 
-    if num == 1:
-        ff = discord.File("gooseneck-main/gamepics/Alpaca10.jpg", filename="Alpaca10.jpg")
-        if rarity <= 55:
-            embed = discord.Embed(title = "Alpaca 10", description = ('General Info \n Global ID: 1'), color = 0xc9c9c9)
-            embed.set_image(url="attachment://Alpaca10.jpg")
-        elif rarity > 55 and rarity <= 75:
-            embed = discord.Embed(title = "Alpaca 10", description = ('General Info \n Global ID: 1'), color = 0x72f26f)
-            embed.set_image(url="attachment://Alpaca10.jpg")
-        elif rarity > 75 and rarity <= 90:
-            embed = discord.Embed(title = "Alpaca 10", description = ('General Info \n Global ID: 1'), color = 0x4441f2)
-            embed.set_image(url="attachment://Alpaca10.jpg")
-        elif rarity > 90 and rarity <= 97:
-            embed = discord.Embed(title = "Alpaca 10", description = ('General Info \n Global ID: 1'), color = 0xed2f52)
-            embed.set_image(url="attachment://Alpaca10.jpg")
-        else:
-            embed = discord.Embed(title = "Alpaca 10", description = ('General Info \n Global ID: 1'), color = 0xf7f41b)
-            embed.set_image(url="attachment://Alpaca10.jpg")
-        #post = {"_id": ctx.author.id, "card": "Alpaca 10"}
-        #collection.insert_one(post)
-    if num == 2:
-        ff = discord.File("gooseneck-main/gamepics/Boruto.png", filename="Boruto.png")
-        if rarity <= 55:
-            embed = discord.Embed(title = "Boruto", description = ('General Info \n Global ID: 2'), color = 0xc9c9c9)
-            embed.set_image(url="attachment://Boruto.png")
-        elif rarity > 55 and rarity <= 75:
-            embed = discord.Embed(title = "Boruto", description = ('General Info \n Global ID: 2'), color = 0x72f26f)
-            embed.set_image(url="attachment://Boruto.png")
-        elif rarity > 75 and rarity <= 90:
-            embed = discord.Embed(title = "Boruto", description = ('General Info \n Global ID: 2'), color = 0x4441f2)
-            embed.set_image(url="attachment://Boruto.png")
-        elif rarity > 90 and rarity <= 97:
-            embed = discord.Embed(title = "Boruto", description = ('General Info \n Global ID: 2'), color = 0xed2f52)
-            embed.set_image(url="attachment://Boruto.png")
-        else:
-            embed = discord.Embed(title = "Boruto", description = ('General Info \n Global ID: 2'), color = 0xf7f41b)
-            embed.set_image(url="attachment://Boruto.png")
-        #post = {"_id": ctx.author.id, "card": "Boruto"}
-        #collection.insert_one(post)
-    if num == 3:
-        ff = discord.File("gooseneck-main/gamepics/Conner.png", filename="Conner.png")
-        if rarity <= 55:
-            embed = discord.Embed(title = "Conner", description = ('General Info \n Global ID: 3'), color = 0xc9c9c9)
-            embed.set_image(url="attachment://Conner.png")
-        elif rarity > 55 and rarity <= 75:
-            embed = discord.Embed(title = "Conner", description = ('General Info \n Global ID: 3'), color = 0x72f26f)
-            embed.set_image(url="attachment://Conner.png")
-        elif rarity > 75 and rarity <= 90:
-            embed = discord.Embed(title = "Conner", description = ('General Info \n Global ID: 3'), color = 0x4441f2)
-            embed.set_image(url="attachment://Conner.png")
-        elif rarity > 90 and rarity <= 97:
-            embed = discord.Embed(title = "Conner", description = ('General Info \n Global ID: 3'), color = 0xed2f52)
-            embed.set_image(url="attachment://Conner.png")
-        else:
-            embed = discord.Embed(title = "Conner", description = ('General Info \n Global ID: 3'), color = 0xf7f41b)
-            embed.set_image(url="attachment://Conner.png")
-        #post = {"_id": ctx.author.id, "card": "Commer"}
-        #collection.insert_one(post)
-    if num == 4:
-        ff = discord.File("gooseneck-main/gamepics/GooseNeck.jpg", filename="GooseNeck.jpg")
-        if rarity <= 55:
-            embed = discord.Embed(title = "GooseNeck", description = ('General Info \n Global ID: 4'), color = 0xc9c9c9)
-            embed.set_image(url="attachment://GooseNeck.jpg")
-        elif rarity > 55 and rarity <= 75:
-            embed = discord.Embed(title = "GooseNeck", description = ('General Info \n Global ID: 4'), color = 0x72f26f)
-            embed.set_image(url="attachment://GooseNeck.jpg")
-        elif rarity > 75 and rarity <= 90:
-            embed = discord.Embed(title = "GooseNeck", description = ('General Info \n Global ID: 4'), color = 0x4441f2)
-            embed.set_image(url="attachment://GooseNeck.jpg")
-        elif rarity > 90 and rarity <= 97:
-            embed = discord.Embed(title = "GooseNeck", description = ('General Info \n Global ID: 4'), color = 0xed2f52)
-            embed.set_image(url="attachment://GooseNeck.jpg")
-        else:
-            embed = discord.Embed(title = "GooseNeck", description = ('General Info \n Global ID: 4'), color = 0xf7f41b)
-            embed.set_image(url="attachment://GooseNeck.jpg")
-        #post = {"_id": ctx.author.id, "card": "GooseNeck"}
-        #collection.insert_one(post)
-    if num == 5:
-        ff = discord.File("gooseneck-main/gamepics/IcyBoo.png", filename="IcyBoo.png")
-        if rarity <= 55:
-            embed = discord.Embed(title = "IcyBoo", description = ('General Info \n Global ID: 5'), color = 0xc9c9c9)
-            embed.set_image(url="attachment://IcyBoo.png")
-        elif rarity > 55 and rarity <= 75:
-            embed = discord.Embed(title = "IcyBoo", description = ('General Info \n Global ID: 5'), color = 0x72f26f)
-            embed.set_image(url="attachment://IcyBoo.png")
-        elif rarity > 75 and rarity <= 90:
-            embed = discord.Embed(title = "IcyBoo", description = ('General Info \n Global ID: 5'), color = 0x4441f2)
-            embed.set_image(url="attachment://IcyBoo.png")
-        elif rarity > 90 and rarity <= 97:
-            embed = discord.Embed(title = "IcyBoo", description = ('General Info \n Global ID: 5'), color = 0xed2f52)
-            embed.set_image(url="attachment://IcyBoo.png")
-        else:
-            embed = discord.Embed(title = "IcyBoo", description = ('General Info \n Global ID: 5'), color = 0xf7f41b)
-            embed.set_image(url="attachment://IcyBoo.png")
-        #post = {"_id": ctx.author.id, "card": "IcyBoo"}
-        #collection.insert_one(post)
-    if num == 6:
-        ff = discord.File("gooseneck-main/gamepics/Isabelle.png", filename="Isabelle.png")
-        if rarity <= 55:
-            embed = discord.Embed(title = "Isabelle", description = ('General Info \n Global ID: 6'), color = 0xc9c9c9)
-            embed.set_image(url="attachment://Isabelle.png")
-        elif rarity > 55 and rarity <= 75:
-            embed = discord.Embed(title = "Isabelle", description = ('General Info \n Global ID: 6'), color = 0x72f26f)
-            embed.set_image(url="attachment://Isabelle.png")
-        elif rarity > 75 and rarity <= 90:
-            embed = discord.Embed(title = "Isabelle", description = ('General Info \n Global ID: 6'), color = 0x4441f2)
-            embed.set_image(url="attachment://Isabelle.png")
-        elif rarity > 90 and rarity <= 97:
-            embed = discord.Embed(title = "Isabelle", description = ('General Info \n Global ID: 6'), color = 0xed2f52)
-            embed.set_image(url="attachment://Isabelle.png")
-        else:
-            embed = discord.Embed(title = "Isabelle", description = ('General Info \n Global ID: 6'), color = 0xf7f41b)
-            embed.set_image(url="attachment://Isabelle.png")
-        #post = {"_id": ctx.author.id, "card": "Isabelle"}
-        #collection.insert_one(post)
-    if num == 7:
-        ff = discord.File("gooseneck-main/gamepics/Joker.jpg", filename="Joker.jpg")
-        if rarity <= 55:
-            embed = discord.Embed(title = "Joker", description = ('General Info \n Global ID: 7'), color = 0xc9c9c9)
-            embed.set_image(url="attachment://Joker.jpg")
-        elif rarity > 55 and rarity <= 75:
-            embed = discord.Embed(title = "Joker", description = ('General Info \n Global ID: 7'), color = 0x72f26f)
-            embed.set_image(url="attachment://Joker.jpg")
-        elif rarity > 75 and rarity <= 90:
-            embed = discord.Embed(title = "Joker", description = ('General Info \n Global ID: 7'), color = 0x4441f2)
-            embed.set_image(url="attachment://Joker.jpg")
-        elif rarity > 90 and rarity <= 97:
-            embed = discord.Embed(title = "Joker", description = ('General Info \n Global ID: 7'), color = 0xed2f52)
-            embed.set_image(url="attachment://Joker.jpg")
-        else:
-            embed = discord.Embed(title = "Joker", description = ('General Info \n Global ID: 7'), color = 0xf7f41b)
-            embed.set_image(url="attachment://Joker.jpg")
-        #post = {"_id": ctx.author.id, "card": "Joker"}
-        #collection.insert_one(post)
-    if num == 8:
-        ff = discord.File("gooseneck-main/gamepics/Kratos.jpg", filename="Kratos.jpg")
-        if rarity <= 55:
-            embed = discord.Embed(title = "Kratos", description = ('General Info \n Global ID: 8'), color = 0xc9c9c9)
-            embed.set_image(url="attachment://Kratos.jpg")
-        elif rarity > 55 and rarity <= 75:
-            embed = discord.Embed(title = "Kratos", description = ('General Info \n Global ID: 8'), color = 0x72f26f)
-            embed.set_image(url="attachment://Kratos.jpg")
-        elif rarity > 75 and rarity <= 90:
-            embed = discord.Embed(title = "Kratos", description = ('General Info \n Global ID: 8'), color = 0x4441f2)
-            embed.set_image(url="attachment://Kratos.jpg")
-        elif rarity > 90 and rarity <= 97:
-            embed = discord.Embed(title = "Kratos", description = ('General Info \n Global ID: 8'), color = 0xed2f52)
-            embed.set_image(url="attachment://Kratos.jpg")
-        else:
-            embed = discord.Embed(title = "Kratos", description = ('General Info \n Global ID: 8'), color = 0xf7f41b)
-            embed.set_image(url="attachment://Kratos.jpg")
-        # post = {"_id": ctx.author.id, "card": "Kratos"}
-        # collection.insert_one(post)
-    if num == 9:
-        ff = discord.File("gooseneck-main/gamepics/Nezuko.png", filename="Nezuko.png")
-        if rarity <= 55:
-            embed = discord.Embed(title = "Nezuko", description = ('General Info \n Global ID: 9'), color = 0xc9c9c9)
-            embed.set_image(url="attachment://Nezuko.png")
-        elif rarity > 55 and rarity <= 75:
-            embed = discord.Embed(title = "Nezuko", description = ('General Info \n Global ID: 9'), color = 0x72f26f)
-            embed.set_image(url="attachment://Nezuko.png")
-        elif rarity > 75 and rarity <= 90:
-            embed = discord.Embed(title = "Nezuko", description = ('General Info \n Global ID: 9'), color = 0x4441f2)
-            embed.set_image(url="attachment://Nezuko.png")
-        elif rarity > 90 and rarity <= 97:
-            embed = discord.Embed(title = "Nezuko", description = ('General Info \n Global ID: 9'), color = 0xed2f52)
-            embed.set_image(url="attachment://Nezuko.png")
-        else:
-            embed = discord.Embed(title = "Nezuko", description = ('General Info \n Global ID: 9'), color = 0xf7f41b)
-            embed.set_image(url="attachment://Nezuko.png")
-        #post = {"_id": ctx.author.id, "card": "Nezuko"}
-        #collection.insert_one(post)
-    if num == 10:
-        ff = discord.File("gooseneck-main/gamepics/Nomad.png", filename="Nomad.png")
-        if rarity <= 55:
-            embed = discord.Embed(title = "Nomad", description = ('General Info \n Global ID: 10'), color = 0xc9c9c9)
-            embed.set_image(url="attachment://Nomad.png")
-        elif rarity > 55 and rarity <= 75:
-            embed = discord.Embed(title = "Nomad", description = ('General Info \n Global ID: 10'), color = 0x72f26f)
-            embed.set_image(url="attachment://Nomad.png")
-        elif rarity > 75 and rarity <= 90:
-            embed = discord.Embed(title = "Nomad", description = ('General Info \n Global ID: 10'), color = 0x4441f2)
-            embed.set_image(url="attachment://Nomad.png")
-        elif rarity > 90 and rarity <= 97:
-            embed = discord.Embed(title = "Nomad", description = ('General Info \n Global ID: 10'), color = 0xed2f52)
-            embed.set_image(url="attachment://Nomad.png")
-        else:
-            embed = discord.Embed(title = "Nomad", description = ('General Info \n Global ID: 10'), color = 0xf7f41b)
-            embed.set_image(url="attachment://Nomad.png")
-        #post = {"_id": ctx.author.id, "card": "Nomad"}
-        #collection.insert_one(post)
-    if num == 11:
-        ff = discord.File("gooseneck-main/gamepics/PacMan.png", filename="PacMan.png")
-        if rarity <= 55:
-            embed = discord.Embed(title = "Pac Man", description = ('General Info \n Global ID: 11'), color = 0xc9c9c9)
-            embed.set_image(url="attachment://PacMan.png")
-        elif rarity > 55 and rarity <= 75:
-            embed = discord.Embed(title = "Pac Man", description = ('General Info \n Global ID: 11'), color = 0x72f26f)
-            embed.set_image(url="attachment://PacMan.png")
-        elif rarity > 75 and rarity <= 90:
-            embed = discord.Embed(title = "Pac Man", description = ('General Info \n Global ID: 11'), color = 0x4441f2)
-            embed.set_image(url="attachment://PacMan.png")
-        elif rarity > 90 and rarity <= 97:
-            embed = discord.Embed(title = "Pac Man", description = ('General Info \n Global ID: 11'), color = 0xed2f52)
-            embed.set_image(url="attachment://PacMan.png")
-        else:
-            embed = discord.Embed(title = "Pac Man", description = ('General Info \n Global ID: 11'), color = 0xf7f41b)
-            embed.set_image(url="attachment://PacMan.png")
-        #post = {"_id": ctx.author.id, "card": "Pac Man"}
-        #collection.insert_one(post)
-    if num == 12:
-        ff = discord.File("gooseneck-main/gamepics/Plootle.jpg", filename="Plootle.jpg")
-        if rarity <= 55:
-            embed = discord.Embed(title = "Plootle", description = ('General Info \n Global ID: 12'), color = 0xc9c9c9)
-            embed.set_image(url="attachment://Plootle.jpg")
-        elif rarity > 55 and rarity <= 75:
-            embed = discord.Embed(title = "Plootle", description = ('General Info \n Global ID: 12'), color = 0x72f26f)
-            embed.set_image(url="attachment://Plootle.jpg")
-        elif rarity > 75 and rarity <= 90:
-            embed = discord.Embed(title = "Plootle", description = ('General Info \n Global ID: 12'), color = 0x4441f2)
-            embed.set_image(url="attachment://Plootle.jpg")
-        elif rarity > 90 and rarity <= 97:
-            embed = discord.Embed(title = "Plootle", description = ('General Info \n Global ID: 12'), color = 0xed2f52)
-            embed.set_image(url="attachment://Plootle.jpg")
-        else:
-            embed = discord.Embed(title = "Plootle", description = ('General Info \n Global ID: 12'), color = 0xf7f41b)
-            embed.set_image(url="attachment://Plootle.jpg")
-        #post = {"_id": ctx.author.id, "card": "Plootle"}
-        #collection.insert_one(post)
-    if num == 13:
-        ff = discord.File("gooseneck-main/gamepics/Sage.png", filename="Sage.png")
-        if rarity <= 55:
-            embed = discord.Embed(title = "Sage", description = ('General Info \n Global ID: 13'), color = 0xc9c9c9)
-            embed.set_image(url="attachment://Sage.png")
-        elif rarity > 55 and rarity <= 75:
-            embed = discord.Embed(title = "Sage", description = ('General Info \n Global ID: 13'), color = 0x72f26f)
-            embed.set_image(url="attachment://Sage.png")
-        elif rarity > 75 and rarity <= 90:
-            embed = discord.Embed(title = "Sage", description = ('General Info \n Global ID: 13'), color = 0x4441f2)
-            embed.set_image(url="attachment://Sage.png")
-        elif rarity > 90 and rarity <= 97:
-            embed = discord.Embed(title = "Sage", description = ('General Info \n Global ID: 13'), color = 0xed2f52)
-            embed.set_image(url="attachment://Sage.png")
-        else:
-            embed = discord.Embed(title = "Sage", description = ('General Info \n Global ID: 13'), color = 0xf7f41b)
-            embed.set_image(url="attachment://Sage.png")
-        #post = {"_id": ctx.author.id, "card": "Sage"}
-        #collection.insert_one(post)
-    if num == 14:
-        ff = discord.File("gooseneck-main/gamepics/Snorlax.png", filename="Snorlax.png")
-        if rarity <= 55:
-            embed = discord.Embed(title = "Snorlax", description = ('General Info \n Global ID: 14'), color = 0xc9c9c9)
-            embed.set_image(url="attachment://Snorlax.png")
-        elif rarity > 55 and rarity <= 75:
-            embed = discord.Embed(title = "Snorlax", description = ('General Info \n Global ID: 14'), color = 0x72f26f)
-            embed.set_image(url="attachment://Snorlax.png")
-        elif rarity > 75 and rarity <= 90:
-            embed = discord.Embed(title = "Snorlax", description = ('General Info \n Global ID: 14'), color = 0x4441f2)
-            embed.set_image(url="attachment://Snorlax.png")
-        elif rarity > 90 and rarity <= 97:
-            embed = discord.Embed(title = "Snorlax", description = ('General Info \n Global ID: 14'), color = 0xed2f52)
-            embed.set_image(url="attachment://Snorlax.png")
-        else:
-            embed = discord.Embed(title = "Snorlax", description = ('General Info \n Global ID: 14'), color = 0xf7f41b)
-            embed.set_image(url="attachment://Snorlax.png")
-        #post = {"_id": ctx.author.id, "card": "Snorlax"}
-        #collection.insert_one(post)
-    if num == 15:
-        ff = discord.File("gooseneck-main/gamepics/SpaceBoi.png", filename="SpaceBoi.png")
-        if rarity <= 55:
-            embed = discord.Embed(title = "Space Boi", description = ('General Info \n Global ID: 15'), color = 0xc9c9c9)
-            embed.set_image(url="attachment://SpaceBoi.png")
-        elif rarity > 55 and rarity <= 75:
-            embed = discord.Embed(title = "Space Boi", description = ('General Info \n Global ID: 15'), color = 0x72f26f)
-            embed.set_image(url="attachment://SpaceBoi.png")
-        elif rarity > 75 and rarity <= 90:
-            embed = discord.Embed(title = "Space Boi", description = ('General Info \n Global ID: 15'), color = 0x4441f2)
-            embed.set_image(url="attachment://SpaceBoi.png")
-        elif rarity > 90 and rarity <= 97:
-            embed = discord.Embed(title = "Space Boi", description = ('General Info \n Global ID: 15'), color = 0xed2f52)
-            embed.set_image(url="attachment://SpaceBoi.png")
-        else:
-            embed = discord.Embed(title = "Space Boi", description = ('General Info \n Global ID: 15'), color = 0xf7f41b)
-            embed.set_image(url="attachment://SpaceBoi.png")
-        #post = {"_id": ctx.author.id, "card": "SpaceBoi"}
-        #collection.insert_one(post)
-    if num == 16:
-        ff = discord.File("gooseneck-main/gamepics/TomNook.jpg", filename="TomNook.jpg")
-        if rarity <= 55:
-            embed = discord.Embed(title = "Tom Nook", description = ('General Info \n Global ID: 16'), color = 0xc9c9c9)
-            embed.set_image(url="attachment://TomNook.jpg")
-        elif rarity > 55 and rarity <= 75:
-            embed = discord.Embed(title = "Tom Nook", description = ('General Info \n Global ID: 16'), color = 0x72f26f)
-            embed.set_image(url="attachment://TomNook.jpg")
-        elif rarity > 75 and rarity <= 90:
-            embed = discord.Embed(title = "Tom Nook", description = ('General Info \n Global ID: 16'), color = 0x4441f2)
-            embed.set_image(url="attachment://TomNook.jpg")
-        elif rarity > 90 and rarity <= 97:
-            embed = discord.Embed(title = "Tom Nook", description = ('General Info \n Global ID: 16'), color = 0xed2f52)
-            embed.set_image(url="attachment://TomNook.jpg")
-        else:
-            embed = discord.Embed(title = "Tom Nook", description = ('General Info \n Global ID: 16'), color = 0xf7f41b)
-            embed.set_image(url="attachment://TomNook.jpg")
-        #post = {"_id": ctx.author.id, "card": "Tom Nook"}
-        #collection.insert_one(post)
-    if num == 17:
-        ff = discord.File("gooseneck-main/gamepics/YumStar.png", filename="YumStar.png")
-        if rarity <= 55:
-            embed = discord.Embed(title = "Yum Star", description = ('General Info \n Global ID: 17'), color = 0xc9c9c9)
-            embed.set_image(url="attachment://YumStar.png")
-        elif rarity > 55 and rarity <= 75:
-            embed = discord.Embed(title = "Yum Star", description = ('General Info \n Global ID: 17'), color = 0x72f26f)
-            embed.set_image(url="attachment://YumStar.png")
-        elif rarity > 75 and rarity <= 90:
-            embed = discord.Embed(title = "Yum Star", description = ('General Info \n Global ID: 17'), color = 0x4441f2)
-            embed.set_image(url="attachment://YumStar.png")
-        elif rarity > 90 and rarity <= 97:
-            embed = discord.Embed(title = "Yum Star", description = ('General Info \n Global ID: 17'), color = 0xed2f52)
-            embed.set_image(url="attachment://YumStar.png")
-        else:
-            embed = discord.Embed(title = "Yum Star", description = ('General Info \n Global ID: 17'), color = 0xf7f41b)
-            embed.set_image(url="attachment://YumStar.png")
-        #post = {"_id": ctx.author.id, "card": "Yum Star"}
-        #collection.insert_one(post)
-    if num == 18:
-        ff = discord.File("gooseneck-main/gamepics/ZSS.png", filename="ZSS.png")
-        if rarity <= 55:
-            embed = discord.Embed(title = "Zero Suit Samus", description = ('General Info \n Global ID: 18'), color = 0xc9c9c9)
-            embed.set_image(url="attachment://ZSS.png")
-        elif rarity > 55 and rarity <= 75:
-            embed = discord.Embed(title = "Zero Suit Samus", description = ('General Info \n Global ID: 18'), color = 0x72f26f)
-            embed.set_image(url="attachment://ZSS.png")
-        elif rarity > 75 and rarity <= 90:
-            embed = discord.Embed(title = "Zero Suit Samus", description = ('General Info \n Global ID: 18'), color = 0x4441f2)
-            embed.set_image(url="attachment://ZSS.png")
-        elif rarity > 90 and rarity <= 97:
-            embed = discord.Embed(title = "Zero Suit Samus", description = ('General Info \n Global ID: 18'), color = 0xed2f52)
-            embed.set_image(url="attachment://ZSS.png")
-        else:
-            embed = discord.Embed(title = "Zero Suit Samus", description = ('General Info \n Global ID: 18'), color = 0xf7f41b)
-            embed.set_image(url="attachment://ZSS.png")
-        #post = {"_id": ctx.author.id, "card": "Zero Suit Samus"}
-        #collection.insert_one(post)
-    await ctx.channel.send(file = ff, embed = embed)
+    owner = str(ctx.message.author.name)
+    name = ["Alpaca 10", "Boruto", "Conner", "GooseNeck", "IcyBoo", "Isabelle", "Joker", "Kratos", "Nezuko", "Nomad", "Pac Man", "Plootle", "Sage", "Snorlax", "Space Boi", "Tom Nook", "Yum Star", "Zero Suit Samus"]
+    #rarity
+    cardRarity = ["**[C]** ~ Common", "**[R]** ~ Rare", "**[SR]** ~ Super Rare", "**[SSR]** ~ Super Super Rare", "**[UR]** ~ Ultra Rare"]
+    cardRarityVis = ["**☆**", "**☆☆**", "**☆☆☆**", "**☆☆☆☆**", "**☆☆☆☆☆**"]
+    if rarity <= 55:
+        rank = cardRarity[0] + '\n' + cardRarityVis[0]
+        cardColor = 0xc9c9c9
+        rare = "Common"
+    elif rarity > 55 and rarity <= 75:
+        rank = cardRarity[1] + '\n' + cardRarityVis[1]
+        cardColor = 0x72f26f
+        rare = "Rare"
+    elif rarity > 75 and rarity <= 90:
+        rank = cardRarity[2] + '\n' + cardRarityVis[2]
+        cardColor = 0x4441f2
+        rare = "Super Rare"
+    elif rarity > 90 and rarity <= 97:
+        rank = cardRarity[3] + '\n' + cardRarityVis[3]
+        cardColor = 0xed2f52
+        rare = "Super Super Rare"
+    else:
+        rank = cardRarity[4] + '\n' + cardRarityVis[4]
+        cardColor = 0xf7f41b
+        rare = "Ultra Rare"
+    #sql stuff
+    #time
+    currentTime = datetime.now()
+    month = currentTime.strftime("%m")
+    day = currentTime.strftime("%d")
+    year = currentTime.strftime("%Y")
+    date = '**Date Rolled:** ' + month + '/' + day + '/' + year
+
+    cardLayout = '**General Info** \n **Global ID:** ' + str(num) + '\n **Original Owner:** ' + owner + '\n' + date + '\n\n' + '**Rarity:** ' + rank
+
+    cardquery = "SELECT url FROM images WHERE globalid = %s;"
+    crsr.execute(cardquery,[num])
+    cardurl = str(crsr.fetchone())
+    print(cardurl)
+    modurl = cardurl.replace(',','')
+    modurl = modurl.replace('(','')
+    modurl = modurl.replace(')','')
+    modurl = modurl.replace("'",'')
+    print(modurl)
+    if not cardurl:
+        await ctx.channel.send("Card does not exsist")
+        return
+    else:
+        embed = discord.Embed(title = name[num-1], description = cardLayout, color = cardColor)
+        embed.set_image(url=modurl)
+        crsr.execute(insert,(name[num-1], rare))
+        conn.commit()
+        await ctx.channel.send(embed = embed)
 
 client.run(token)
