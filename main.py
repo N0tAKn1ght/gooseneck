@@ -7,12 +7,8 @@ from discord import Embed
 from datetime import datetime
 import psycopg2
 
-conn = psycopg2.connect(user = "iwjahdoeduzhpw",
-                        password = "61fe7582e319e7889d9571cf574b5f17687504226bbdb3dc89265468f34c5cdc",
-                        host = "ec2-54-161-239-198.compute-1.amazonaws.com",
-                        port = "5432",
-                        database = "d2f6if7qo4eukk",
-                        sslmode='require')
+DATABASE_URL = os.environ['DATABASE_URL']
+conn = psycopg2.connect(DATABASE_URL, sslmode='require')
 crsr = conn.cursor()
 print(conn.get_dsn_parameters(),"\n")
 print("Database Connected")
