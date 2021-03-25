@@ -69,14 +69,32 @@ async def play(ctx, url : str, channel : str):
 async def home(ctx):
     e = discord.Embed(description = ("Will send user to home page site :D"), color = 0xa1ffb0)
     await ctx.send(embed = e)
-"""
+    
 @client.command(name = "inv")
-async def inventory(ctx):
+async def inventory(ctx, rarity):
     userid = ctx.author.id
-    crsr.execute("SELECT userid FROM userinfo where userid = %s;",[userid]))
-    e = discord.Embed(description = ("Display info about given card"), color = 0xa1ffb0)
-    await ctx.send(embed = e)
-"""
+    username = str(ctx.author)
+    user = ""
+    for character in username:
+        if character.isalnum():
+            user += character
+    crsr.execute("SELECT userid FROM userinfo where userid = %s;",[userid])
+    check = crsr.fetchall()
+    if not check:
+        await ctx.send("You have not registered yet")
+    else:
+        if rarity == "all":
+            crsr.execute("SELECT * FROM " + user + " ORDER BY cardrarity;")
+            inv = str(crsr.fetchall())
+            await ctx.send(inv)
+        elif rarity == "Rare" or rarity == "Super Rare" or rarity == " Super Super Rare" or rarity == "Ultra Rare" or rarity == "Common":
+            crsr.execute("SELECT cardname, cardrarity FROM " + user + " WHERE cardrarity = '" + rarity + "';")
+            inv = str(crsr.fetchall())
+            await ctx.send(inv)
+        else:
+            e = discord.Embed(description = ("Requires second argument, use all to see all cards, plase use one of the following to see the following rarities : Common, Rare, Super Rare, Super Super Rare, Ultra Rare"), color = 0xa1ffb0)
+            await ctx.send(embed = e)
+ 
 @client.command(name = "register")
 async def on_message(ctx):
     userid = ctx.author.id
