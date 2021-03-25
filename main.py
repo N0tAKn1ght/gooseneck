@@ -86,13 +86,11 @@ async def inventory(ctx, rarity):
         if rarity == "all":
             crsr.execute("SELECT * FROM " + user + " ORDER BY cardrarity;")
             inv = str(crsr.fetchall())
-            for x in inv:
-                await ctx.send(x)
+            await ctx.send(inv)
         elif rarity == "Rare" or rarity == "Super Rare" or rarity == " Super Super Rare" or rarity == "Ultra Rare" or rarity == "Common":
             crsr.execute("SELECT cardname, cardrarity FROM " + user + " WHERE cardrarity = '" + rarity + "';")
             inv = str(crsr.fetchall())
-            for x in inv:
-                await ctx.send(x)
+            await ctx.send(inv)
         else:
             e = discord.Embed(description = ("Requires second argument, use all to see all cards, plase use one of the following to see the following rarities : Common, Rare, Super Rare, Super Super Rare, Ultra Rare"), color = 0xa1ffb0)
             await ctx.send(embed = e)
