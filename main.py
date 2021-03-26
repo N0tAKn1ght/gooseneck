@@ -6,33 +6,32 @@ import random
 from discord import Embed
 from datetime import datetime
 import psycopg2
-
-DATABASE_URL = os.environ['DATABASE_URL']
-conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+# postgres connection method
+conn = psycopg2.connect(user = "postgres",
+                        password = "1ssac",
+                        host = "35.225.114.68",
+                        port = "5432",
+                        database = "gooseneck",
+                        sslmode='require')
 crsr = conn.cursor()
 print(conn.get_dsn_parameters(),"\n")
 print("Database Connected")
 
+# the prefix for commands
 client = commands.Bot(command_prefix = ".")
+
+# token to connect discord api
 token = 'ODA4NDE1ODg5ODc1NjY0OTI3.YCGN9w.qIBD2q-uteQ_YIyEYeubBFVCNhk'
 
+# console to show connection status
 @client.event
 async def on_ready():
    print(f'{client.user} has connected on Discord')
 
+# to return the user's username
 @client.command(name = "whoami")
 async def whoami(ctx):
     e = discord.Embed(description = (f"You are {ctx.message.author}"), color = 0xa1ffb0)
-    await ctx.send(embed = e)
-
-@client.command(name = "fuck")
-async def fuck(ctx):
-    e = discord.Embed(description = ("Bend over, you silly goose!"), color = 0xa1ffb0)
-    await ctx.send(embed = e)
-
-@client.command(name = "insert")
-async def insert(ctx):
-    e = discord.Embed(description = ("You like that, you silly goose!"), color = 0xa1ffb0)
     await ctx.send(embed = e)
 
 # Says hello, used to see if bot is online
@@ -65,7 +64,7 @@ async def play(ctx, url : str, channel : str):
 async def home(ctx):
     e = discord.Embed(description = ("Will send user to home page site :D"), color = 0xa1ffb0)
     await ctx.send(embed = e)
-    
+
 @client.command(name = "inv")
 async def inventory(ctx, rarity):
     userid = ctx.author.id
@@ -81,7 +80,7 @@ async def inventory(ctx, rarity):
     else:
         if rarity == "all":
             crsr.execute("SELECT * FROM " + user + " ORDER BY cardrarity;")
-            inv = str(crsr.fetchall())
+            inv = str(crsr.fetchall())s
             await ctx.send(inv)
         elif rarity == "Rare" or rarity == "Super Rare" or rarity == " Super Super Rare" or rarity == "Ultra Rare" or rarity == "Common":
             crsr.execute("SELECT cardname, cardrarity FROM " + user + " WHERE cardrarity = '" + rarity + "';")
@@ -90,7 +89,8 @@ async def inventory(ctx, rarity):
         else:
             e = discord.Embed(description = ("Requires second argument, use all to see all cards, plase use one of the following to see the following rarities : Common, Rare, Super Rare, Super Super Rare, Ultra Rare"), color = 0xa1ffb0)
             await ctx.send(embed = e)
- 
+
+#inputs user's unique ID in to database and creates seperate inventory table
 @client.command(name = "register")
 async def on_message(ctx):
     userid = ctx.author.id
@@ -141,7 +141,7 @@ async def roll(ctx):
     insert = "INSERT INTO "+ user + "(cardname, cardrarity) VALUES (%s, %s);"
 
     owner = str(ctx.message.author.name)
-    name = ["Alpaca 10", "Boruto", "Conner", "GooseNeck", "IcyBoo", "Isabelle", "Joker", "Kratos", "Nezuko", "Nomad", "Pac Man", "Plootle", "Sage", "Snorlax", "Space Boi", "Tom Nook", "Yum Star", "Zero Suit Samus"]
+    name = ["Alpaca 10", "Boruto", "Conner", "GooseNeck", "IcyBoo", "Isabelle", "Joker", "Kratos", "Nezuko", "Nomad", "Pac Man", "Plootle", "Sage", "Snorlax", "Space Boi", "Tom Nook", "Yum Star", "Zavalla", "Zero Suit Samus"]
     #rarity
     cardRarity = ["**[C]** ~ Common", "**[R]** ~ Rare", "**[SR]** ~ Super Rare", "**[SSR]** ~ Super Super Rare", "**[UR]** ~ Ultra Rare"]
     cardRarityVis = ["**☆**", "**☆☆**", "**☆☆☆**", "**☆☆☆☆**", "**☆☆☆☆☆**"]
@@ -174,7 +174,7 @@ async def roll(ctx):
     date = '**Date Rolled:** ' + month + '/' + day + '/' + year
 
     cardLayout = '**General Info** \n **Global ID:** ' + str(num) + '\n **Original Owner:** ' + owner + '\n' + date + '\n\n' + '**Rarity:** ' + rank
-
+    #gets google cloud url for photos
     cardquery = "SELECT url FROM images WHERE globalid = %s;"
     crsr.execute(cardquery,[num])
     cardurl = str(crsr.fetchone())
