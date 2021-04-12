@@ -7,11 +7,11 @@ from discord import Embed
 from datetime import datetime
 import psycopg2
 # postgres connection method
-conn = psycopg2.connect(user = "postgres",
-                        password = "1ssac",
-                        host = "35.225.114.68",
+conn = psycopg2.connect(user = "qpeynpgjkccpxh",
+                        password = "f96f5d86cf1892bac455d2d0f1ea6fd71970ffbd8637a37e384150f4a74fa839",
+                        host = "ec2-54-167-152-185.compute-1.amazonaws.com",
                         port = "5432",
-                        database = "gooseneck",
+                        database = "d4a3mdi3t849lu",
                         sslmode='require')
 crsr = conn.cursor()
 print(conn.get_dsn_parameters(),"\n")
@@ -65,6 +65,13 @@ async def home(ctx):
     e = discord.Embed(description = ("Will send user to home page site :D"), color = 0xa1ffb0)
     await ctx.send(embed = e)
 
+@client.command(name = "coin")
+async def coin(ctx):
+    userid = ctx.author.id
+    crsr.execute("SELECT coins FROM userinfo where userid = %s;",[userid])
+    money = crsr.fetchone()
+    await ctx.send(money[0])
+
 @client.command(name = "inv")
 async def inventory(ctx, rarity):
     userid = ctx.author.id
@@ -80,7 +87,7 @@ async def inventory(ctx, rarity):
     else:
         if rarity == "all":
             crsr.execute("SELECT * FROM " + user + " ORDER BY cardrarity;")
-            inv = str(crsr.fetchall())s
+            inv = str(crsr.fetchall())
             await ctx.send(inv)
         elif rarity == "Rare" or rarity == "Super Rare" or rarity == " Super Super Rare" or rarity == "Ultra Rare" or rarity == "Common":
             crsr.execute("SELECT cardname, cardrarity FROM " + user + " WHERE cardrarity = '" + rarity + "';")
@@ -108,7 +115,7 @@ async def on_message(ctx):
     data = crsr.fetchall()
 
     if not data:
-        crsr.execute("INSERT INTO userinfo (userid,username) VALUES(%s,%s);",[userid,username])
+        crsr.execute("INSERT INTO userinfo (userid,username,coins) VALUES(%s,%s,50);",[userid,username])
         conn.commit()
         crsr.execute(createtable)
         conn.commit()
@@ -130,68 +137,77 @@ async def roll(ctx):
         await ctx.send("You need to register first, you silly goose")
         return
     
-    num = random.randint(1, 19)
-    rarity = random.randint(1, 100)
-    username = str(ctx.author)
-    user = ""
-    for character in username:
-        if character.isalnum():
-            user += character
-            
-    insert = "INSERT INTO "+ user + "(cardname, cardrarity) VALUES (%s, %s);"
-
-    owner = str(ctx.message.author.name)
-    name = ["Alpaca 10", "Boruto", "Conner", "GooseNeck", "IcyBoo", "Isabelle", "Joker", "Kratos", "Nezuko", "Nomad", "Pac Man", "Plootle", "Sage", "Snorlax", "Space Boi", "Tom Nook", "Yum Star", "Zavalla", "Zero Suit Samus"]
-    #rarity
-    cardRarity = ["**[C]** ~ Common", "**[R]** ~ Rare", "**[SR]** ~ Super Rare", "**[SSR]** ~ Super Super Rare", "**[UR]** ~ Ultra Rare"]
-    cardRarityVis = ["**☆**", "**☆☆**", "**☆☆☆**", "**☆☆☆☆**", "**☆☆☆☆☆**"]
-    if rarity <= 55:
-        rank = cardRarity[0] + '\n' + cardRarityVis[0]
-        cardColor = 0xc9c9c9
-        rare = "Common"
-    elif rarity > 55 and rarity <= 75:
-        rank = cardRarity[1] + '\n' + cardRarityVis[1]
-        cardColor = 0x72f26f
-        rare = "Rare"
-    elif rarity > 75 and rarity <= 90:
-        rank = cardRarity[2] + '\n' + cardRarityVis[2]
-        cardColor = 0x4441f2
-        rare = "Super Rare"
-    elif rarity > 90 and rarity <= 97:
-        rank = cardRarity[3] + '\n' + cardRarityVis[3]
-        cardColor = 0xed2f52
-        rare = "Super Super Rare"
-    else:
-        rank = cardRarity[4] + '\n' + cardRarityVis[4]
-        cardColor = 0xf7f41b
-        rare = "Ultra Rare"
-    #sql stuff
-    #time
-    currentTime = datetime.now()
-    month = currentTime.strftime("%m")
-    day = currentTime.strftime("%d")
-    year = currentTime.strftime("%Y")
-    date = '**Date Rolled:** ' + month + '/' + day + '/' + year
-
-    cardLayout = '**General Info** \n **Global ID:** ' + str(num) + '\n **Original Owner:** ' + owner + '\n' + date + '\n\n' + '**Rarity:** ' + rank
-    #gets google cloud url for photos
-    cardquery = "SELECT url FROM images WHERE globalid = %s;"
-    crsr.execute(cardquery,[num])
-    cardurl = str(crsr.fetchone())
-    print(cardurl)
-    modurl = cardurl.replace(',','')
-    modurl = modurl.replace('(','')
-    modurl = modurl.replace(')','')
-    modurl = modurl.replace("'",'')
-    print(modurl)
-    if not cardurl:
-        await ctx.channel.send("Card does not exsist")
+    crsr.execute("SELECT coins FROM userinfo where userid = %s;",[userid])
+    money = crsr.fetchone()
+    print(money[0])
+    if(money[0] == 0):
+        await ctx.send("You're out of money, you silly goose")
         return
     else:
-        embed = discord.Embed(title = name[num-1], description = cardLayout, color = cardColor)
-        embed.set_image(url=modurl)
-        crsr.execute(insert,(name[num-1], rare))
-        conn.commit()
-        await ctx.channel.send(embed = embed)
+        coin = money[0] - 1
+        crsr.execute("UPDATE userinfo SET coins = '%s' WHERE userid = '%s';",[coin, userid])
+        num = random.randint(1, 19)
+        rarity = random.randint(1, 100)
+        username = str(ctx.author)
+        user = ""
+        for character in username:
+            if character.isalnum():
+                user += character
+                
+        insert = "INSERT INTO "+ user + "(cardname, cardrarity) VALUES (%s, %s);"
+
+        owner = str(ctx.message.author.name)
+        name = ["Alpaca 10", "Boruto", "Conner", "GooseNeck", "IcyBoo", "Isabelle", "Joker", "Kratos", "Nezuko", "Nomad", "Pac Man", "Plootle", "Sage", "Snorlax", "Space Boi", "Tom Nook", "Yum Star", "Zavalla", "Zero Suit Samus"]
+        #rarity
+        cardRarity = ["**[C]** ~ Common", "**[R]** ~ Rare", "**[SR]** ~ Super Rare", "**[SSR]** ~ Super Super Rare", "**[UR]** ~ Ultra Rare"]
+        cardRarityVis = ["**☆**", "**☆☆**", "**☆☆☆**", "**☆☆☆☆**", "**☆☆☆☆☆**"]
+        if rarity <= 55:
+            rank = cardRarity[0] + '\n' + cardRarityVis[0]
+            cardColor = 0xc9c9c9
+            rare = "Common"
+        elif rarity > 55 and rarity <= 75:
+            rank = cardRarity[1] + '\n' + cardRarityVis[1]
+            cardColor = 0x72f26f
+            rare = "Rare"
+        elif rarity > 75 and rarity <= 90:
+            rank = cardRarity[2] + '\n' + cardRarityVis[2]
+            cardColor = 0x4441f2
+            rare = "Super Rare"
+        elif rarity > 90 and rarity <= 97:
+            rank = cardRarity[3] + '\n' + cardRarityVis[3]
+            cardColor = 0xed2f52
+            rare = "Super Super Rare"
+        else:
+            rank = cardRarity[4] + '\n' + cardRarityVis[4]
+            cardColor = 0xf7f41b
+            rare = "Ultra Rare"
+        #sql stuff
+        #time
+        currentTime = datetime.now()
+        month = currentTime.strftime("%m")
+        day = currentTime.strftime("%d")
+        year = currentTime.strftime("%Y")
+        date = '**Date Rolled:** ' + month + '/' + day + '/' + year
+
+        cardLayout = '**General Info** \n **Global ID:** ' + str(num) + '\n **Original Owner:** ' + owner + '\n' + date + '\n\n' + '**Rarity:** ' + rank
+        #gets google cloud url for photos
+        cardquery = "SELECT url FROM images WHERE globalid = %s;"
+        crsr.execute(cardquery,[num])
+        cardurl = str(crsr.fetchone())
+        print(cardurl)
+        modurl = cardurl.replace(',','')
+        modurl = modurl.replace('(','')
+        modurl = modurl.replace(')','')
+        modurl = modurl.replace("'",'')
+        print(modurl)
+        if not cardurl:
+            await ctx.channel.send("Card does not exsist")
+            return
+        else:
+            embed = discord.Embed(title = name[num-1], description = cardLayout, color = cardColor)
+            embed.set_image(url=modurl)
+            crsr.execute(insert,(name[num-1], rare))
+            conn.commit()
+            await ctx.channel.send(embed = embed)
 
 client.run(token)
