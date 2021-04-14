@@ -172,14 +172,22 @@ async def claim_cooldown(ctx, error):
 @client.command(name = "hep_cmd")
 async def hep_cmd(ctx):
     bl = "\n \n"
-    dis = "`.register`" + "-  Set up to start playing! " + bl + "`.coin`" + "-Check your currency" + bl + "`.inv`" + "-Check card inventory" + bl + "`.roll`" + "-Uses coin to obtain card!" + bl +"`.hep`" + "-Quick list of commands" + bl + "`.hep_cmd`" + "-In-Depth " + bl
+    dis = ("`.register`" + " - Set up to start playing" + bl + "`.coin`" + " - Checks your currency"
+     + bl + "`.claim`" + " - Adds Coins to your account" + bl + "`.roll`" + " - Uses coins to obtain cards"
+     + bl + "`.inv`" + " - Check card inventory" + bl +  "`.view`" + " - Checks a card using its unique ID"
+     + bl + "`.hep`" + " - breif explaination of GooseNeck Bot" + bl + "`.hep_cmd`" + " - list of commands and what they do"
+     + bl + "`.home`" + " - Sends a link to our website")
     e = discord.Embed(title = "***Help Command***",description = dis, color = 0xa1ffb0)
     await ctx.send(embed = e)
 
 # In-Depth help command, used for full list of commands
 @client.command(name = "hep")
 async def hep(ctx):
-    dis = "Hey! Make sure to to .register to get set up. you can get cards by doing `.roll` as long as you have coins, which you can check by doing `.coin` \n You can always see what cards you have by doing `.inv`.\n Have Fun!"
+    dis = ("Hey! Thanks for downloading GooseNeck Bot, make sure to type `.register` to get set up and claim 50 free coins. "
+    "You can get cards by typing `.roll` as long as you have coins, which you can check by typing `.coin`. "
+    "If you want more coins, you can type `.claim` every 10 minutes! Typeing `.inv` will tell you how many cards you "
+    "have and typing a keyword after it will show how many of those cards you have. If you ever want to see a card, feel free "
+    "to type `.view` and a unique ID. Thanks again for downloading GooseNeck Bot and have fun!")
     e = discord.Embed(description = dis, color = 0xa1ffb0)
     await ctx.send(embed = e)
 """
