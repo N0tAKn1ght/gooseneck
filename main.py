@@ -220,7 +220,7 @@ async def inventory(ctx, name = None):
         await ctx.send(embed = e)
 
     elif name == "all":
-        embed = discord.Embed(title=f"__**{ctx.guild.name} Results:**__", color = 0x03f8fc, timestamp = ctx.message.created_at)
+        embed = discord.Embed(title=f"__**{ctx.message.author.name} Results:**__", color = 0x03f8fc, timestamp = ctx.message.created_at)
         lst = []
         crsr.execute("SELECT COUNT(*) FROM " + user)
         tot = str(crsr.fetchone())
