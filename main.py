@@ -6,6 +6,9 @@ import random
 from discord import Embed
 from datetime import datetime
 import psycopg2
+import json
+import requests
+
 # postgres connection method
 conn = psycopg2.connect(user = "qpeynpgjkccpxh",
                         password = "f96f5d86cf1892bac455d2d0f1ea6fd71970ffbd8637a37e384150f4a74fa839",
@@ -132,13 +135,24 @@ def list_string(thing):
 async def on_ready():
    print(f'{client.user} has connected on Discord')
 
-
 # Says hello, used to see if bot is online
 @client.command(name = "hello")
 async def hello(ctx):
     e = discord.Embed(description = ("Howdy!"), color = 0xa1ffb0)
     await ctx.send(embed = e)
 
+# Gives you a random quote from zenquotes
+@client.command(name = "quote")
+async def quote(ctx):
+    owner = str(ctx.message.author.name)
+    response = requests.get("https://zenquotes.io/api/random")
+    json_data = json.loads(response.text)
+    quote = json_data[0]['q'] + " -" + json_data[0]['a']
+    e = discord.Embed(title = "***Some Inspiration ~***", description = quote, color = 0xa1ffb0)
+    e.set_author(name = owner, icon_url = ctx.author.avatar_url)
+    await ctx.send(embed = e)
+
+# shows how many coins you have
 @client.command(name = "coin")
 async def coin(ctx):
     owner = str(ctx.message.author.name)
@@ -150,6 +164,7 @@ async def coin(ctx):
     e.set_author(name = owner, icon_url = ctx.author.avatar_url)
     await ctx.send(embed=e)
 
+# claims 5 coins with a current cooldown of 10 seconds
 @client.command(name = "claim")
 @commands.cooldown(1, 10, commands.BucketType.user)
 async def claim(ctx):
@@ -165,6 +180,7 @@ async def claim(ctx):
     e.set_author(name = owner, icon_url = ctx.author.avatar_url)
     await ctx.send(embed=e)
 
+# sends an error message/cooldown message
 @claim.error
 async def claim_cooldown(ctx, error):
     owner = str(ctx.message.author.name)
@@ -173,8 +189,7 @@ async def claim_cooldown(ctx, error):
         e.set_author(name = owner, icon_url = ctx.author.avatar_url)
         await ctx.send(embed=e)
 
-# Help Command, will redirect user to site to see list of command
-# Quick and easy guide to start 
+# In-Depth help command, used for full list of commands
 @client.command(name = "hep_cmd")
 async def hep_cmd(ctx):
     owner = str(ctx.message.author.name)
@@ -188,7 +203,7 @@ async def hep_cmd(ctx):
     e.set_author(name = owner, icon_url = ctx.author.avatar_url)
     await ctx.send(embed = e)
 
-# In-Depth help command, used for full list of commands
+# Quick and easy guide to start 
 @client.command(name = "hep")
 async def hep(ctx):
     owner = str(ctx.message.author.name)
@@ -200,6 +215,7 @@ async def hep(ctx):
     e = discord.Embed(description = dis, color = 0xa1ffb0)
     e.set_author(name = owner, icon_url = ctx.author.avatar_url)
     await ctx.send(embed = e)
+    
 """
 @client.command(name = "play")
 async def play(ctx, url : str, channel : str):
@@ -207,12 +223,14 @@ async def play(ctx, url : str, channel : str):
     voice = discord.utils.get(client.voice_clients, guild =ctx.guild)
     await voiceChannel.connect()
 """
+
 # User can get to our site, for more info, invite to new server, etc
 @client.command(name = "home")
 async def home(ctx):
     e = discord.Embed(description = ("Will send user to home page site :D"), color = 0xa1ffb0)
     await ctx.send(embed = e)
 
+# tells the user how many cards they have in their inventory
 @client.command(name = "inv")
 async def inventory(ctx, name = None):
     owner = str(ctx.message.author.name)
@@ -231,6 +249,7 @@ async def inventory(ctx, name = None):
     if not check:
         await ctx.send("You have not registered yet")
 
+# tells them the total amount of cards they have
     elif name == None:
         crsr.execute("SELECT COUNT(*) FROM " + user)
         tot = str(crsr.fetchone())
@@ -239,6 +258,7 @@ async def inventory(ctx, name = None):
         e.set_author(name = owner, icon_url = ctx.author.avatar_url)
         await ctx.send(embed = e)
 
+# shows them all the cards they have in an embedded list
     elif name == "all":
         embed = discord.Embed(title=f"__**{ctx.message.author.name} Results:**__", color = 0x03f8fc, timestamp = ctx.message.created_at)
         lst = []
@@ -275,24 +295,27 @@ async def inventory(ctx, name = None):
             rare = remove(rare)
             lst.append((unique, tname, rare))
         print(lst)
+
         #cardLayout = '**Number Owned =** ' + tot + '\n **Global ID:** ' + num + '\n **Unique ID:** ' + uid + '\n **Date Rolled: **' + date + '\n**Rarity:** ' + rank
         '''
         cardLayout = srow
         embed = discord.Embed(title = name, color = 0xa1ffb0)
         embed.add_field(name=f'**{teamname}**', value=f'> Kills: {firstnum}\n> Position Pt: {secondnum}\n> Total Pt: {firstnum+secondnum}',inline=False)
         '''
+
         lstSorted = sorted(lst,reverse=True) # sort   
         for unique, tname, rare in lstSorted:  # process embed
             embed.add_field(name=f'{tname}', value=f'> uniqueID: {unique}\n> CardName: {tname}\n> Rarity: {rare}',inline=True)
         embed.set_author(name = owner, icon_url = ctx.author.avatar_url)
         await ctx.send(embed = embed)
 
+# error message that tells the user they spelled something wrong or the card does not exist
     elif not real:
         await ctx.send("The Card is spelled incorrectly or does not exist.")
         return
 
+# searches for a specific card and how many of that card the user owns
     else:
-        
         embed = discord.Embed(title=f"__**{ctx.message.author.name}'s Inventory:**__", color = 0x03f8fc, timestamp = ctx.message.created_at)
         lst = []
         crsr.execute("SELECT COUNT(*) FROM " + user + " WHERE cardname = %s", [name])
@@ -327,12 +350,14 @@ async def inventory(ctx, name = None):
             rare = str(rank[i])
             rare = remove(rare)
             lst.append((unique, tname, rare))
+
         #cardLayout = '**Number Owned =** ' + tot + '\n **Global ID:** ' + num + '\n **Unique ID:** ' + uid + '\n **Date Rolled: **' + date + '\n**Rarity:** ' + rank
         '''
         cardLayout = srow
         embed = discord.Embed(title = name, color = 0xa1ffb0)
         embed.add_field(name=f'**{teamname}**', value=f'> Kills: {firstnum}\n> Position Pt: {secondnum}\n> Total Pt: {firstnum+secondnum}',inline=False)
         '''
+
         lstSorted = sorted(lst,reverse=True) # sort   
         for unique, tname, rare in lstSorted:  # process embed
             embed.add_field(name = f'{name}', value = f'> uniqueID: {unique}\n> CardName: {tname}\n> Rarity: {rare}',inline = True)
@@ -357,10 +382,12 @@ async def inventory(ctx, name = None):
             e = discord.Embed(description = ("Requires second argument, use all to see all cards, plase use one of the following to see the following rarities : Common, Rare, Super Rare, Ultra Rare, Legendary"), color = 0xa1ffb0)
             await ctx.send(embed = e)
         '''
+
+# Allows the user to view a card based on a unique ID
 @client.command(name = "view")
 async def view(ctx, uniqueid = None):
     if uniqueid == None:
-        await ctx.send("Need a global ID")
+        await ctx.send("Need a unique ID")
     else:
         owner = str(ctx.message.author.name)
         userid = ctx.author.id
@@ -437,12 +464,10 @@ async def on_message(ctx):
     else:
         await ctx.send("You already registered, you silly goose")
 
+#takes one coin from the user and generates a random card/rarity and add it into their database
 @client.command(name = "roll")
 async def roll(ctx):
     userid = ctx.author.id
-    #if ctx.author.id == 279083868894658561:
-    #    await ctx.send("no more albert")
-    #    return
     crsr.execute("SELECT userid FROM userinfo where userid = %s;",[userid])
     data = crsr.fetchall()
 
@@ -469,6 +494,7 @@ async def roll(ctx):
 
         owner = str(ctx.message.author.name)
         name = ["Alpaca10", "Boruto", "Conner", "GooseNeck", "IcyBoo", "Isabelle", "Joker", "Kratos", "Nezuko", "Nomad", "PacMan", "Plootle", "Sage", "Snorlax", "SpaceBoi", "Tom Nook", "YumStar", "Zavalla", "ZeroSuitSamus"]
+        
         #rarity
         rank = setrarity(rarity)
         cardColor = rank[1]
