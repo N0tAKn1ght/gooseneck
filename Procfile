@@ -1,2 +1,2 @@
 worker: python main.py
-web: node ./app.js
+web: node ./protocard_viewer.js
