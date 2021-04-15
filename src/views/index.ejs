@@ -1,0 +1,101 @@
+<<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+    crossorigin="anonymous">
+  <style>
+    img {
+      width: 100%;
+    }
+  </style>
+  <title>Img File Uploads</title>
+</head>
+
+<body>
+  <nav class="navbar navbar-expand-sm bg-dark navbar-dark">
+    <ul class="navbar-nav mr-auto">
+        <li class="nav-brand">
+            <a class="nav-brand" href="home.html">
+                <img src="../resources/img/goose_face.jpg" class="rounded-circle" alt="logo" height="45px" width="55px">
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="home.html">Gooseneck Bot</a>
+        </li>
+    </ul>
+</nav>
+
+<!-- Menu -->
+<div class="pos-f-t">
+    <div class="collapse" id="navbartoggle">
+        <div class="bg-dark p-4">
+            <h3 class="text-white h4">Menu</h3>
+            <nav class="nav flex-column">
+                <a class="nav-link active" href="botCommands.html">Bot Commands</a>
+                <a class="nav-link" href="about.html">About Bot</a>
+                <a class="nav-link" href="help.html">Help</a>
+                <a class="nav-link" href="cards.html">Insert Cards.V1</a>
+                <a class="nav-link" href="index.ejs">Insert Cards</a>
+                <a class="nav-link" href="printCards.ejs">View all Cards</a>
+            </nav>
+        </div>
+    </div>
+    <nav class="navbar navbar-dark bg-dark">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbartoggle" aria-controls="navbartoggle" aria-expanded="false" aria-label="toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </nav>
+</div>
+
+  <div class="container">
+    <div class="row">
+      <!-- Info stuff -->
+      <div class="jumbotron">
+        <div class="col-8">
+          <h1 class="text-center display-4 my-4">Add images to the Bot!</h1>
+          <p class="lead">Please input a image from your computer</p>
+          <form action="/upload" method="POST" enctype="multipart/form-data">
+            <div class="custom-file mb-3">
+              <input type="file" name="file" id="file" class="custom-file-input">
+              <label for="file" class="custom-file-label">Choose File</label>
+            </div>
+            <input type="submit" value="Submit" class="btn btn-primary btn-block">
+          </form>
+        </div>
+      </div>
+      <hr>
+      <div class="col-4">
+        <!-- img stuff -->
+        <% if(files){ %>
+          <% files.forEach(function(file) { %>
+            <div class="card card-body mb-3">
+              <% if(file.isImage) { %>
+                <img src="image/<%= file.filename %>" alt="">
+                <% } else { %>
+                  <%= file.filename %>
+                    <% } %>
+                      <form method="POST" action="/files/<%= file._id %>?_method=DELETE">
+                        <button class="btn btn-danger btn-block mt-4">Delete</button>
+                      </form>
+            </div>
+            <% }) %>
+              <% } else { %>
+                <p>No files to show</p>
+                <% } %>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+    crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+    crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+    crossorigin="anonymous"></script>
+</body>
+
+</html>

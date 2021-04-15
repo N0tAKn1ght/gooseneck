@@ -1,0 +1,126 @@
+body{
+    height: 100px;
+    margin: 0;
+    background-color: rgb(233, 230, 230);
+}
+
+h3{
+    font-family: 'Georgia', serif;
+}
+
+h5{
+    font-family: 'Garamond', serif;
+}
+
+h2{
+    font-family: 'Garamond', serif;
+    text-align: center;
+    font-weight: bold;
+}
+
+.gooseh {
+    background-image: url("../resources/img/goose_hands.jpg");
+    height: 25vh;
+    width: 20vw;
+    justify-content: center;
+    align-items: center;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.gooseb {
+    background-image: url("../resources/img/buff\ _goose.jpg");
+    height: 25vh;
+    width: 20vw;
+    justify-content: center;
+    align-items: center;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.text {
+    text-align: center;
+}
+
+nav {
+    overflow: auto;
+}
+
+.centerB{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 150px;
+}
+
+.card {
+    box-shadow: 0 4px 8px 0 rgba(253, 253, 253, 0.993);
+    transition: 0.3s;
+    width: 60%;
+    padding-left: 50px;
+}
+
+table, th, td, tr{
+    border: 1px solid rgb(0, 0, 0);
+    text-align: left;
+    background: white;
+}
+
+/* experimenting */
+
+div.wrap {
+    background: url('../resources/img/lilypads.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    justify-content: center;
+    align-items: center;
+    height: 850px;
+}
+
+div.box p{
+    margin: 1%;
+    color: black;
+    font-weight: bold;
+    text-align: center;
+    font-family: 'Georgia', serif;
+}
+
+div.box{
+    border: 1px solid black;
+    background-color: rgba(253, 253, 253, 0.7);
+}
+
+.jumbotron{
+    border: 1px solid black;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+/* This works just need to implement into the one before*/
+/* div.container{
+    background-image: url("../resources/img/lilypads.jpg");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+div.transbox{
+    padding: 30px;
+    background-color: rgba(253, 253, 253, 0.5);
+    border: 1px solid black;
+    height: 1000px;
+}
+
+div.transbox p {
+    color: black;
+    font-weight: bold;
+    text-align: center;
+} */
