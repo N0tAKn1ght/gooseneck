@@ -141,16 +141,19 @@ async def hello(ctx):
 
 @client.command(name = "coin")
 async def coin(ctx):
+    owner = str(ctx.message.author.name)
     userid = ctx.author.id
     crsr.execute("SELECT coins FROM userinfo where userid = %s;",[userid])
     money = crsr.fetchone()
     smoney = str(money[0])
     e = discord.Embed(title = "Currency", description = "You currently have " + smoney + " coins! " + "<:DABLOON:810940045468499988>", color = 0xa1ffb0)
+    e.set_author(name = owner, icon_url = ctx.author.avatar_url)
     await ctx.send(embed=e)
 
 @client.command(name = "claim")
 @commands.cooldown(1, 10, commands.BucketType.user)
 async def claim(ctx):
+    owner = str(ctx.message.author.name)
     userid = ctx.author.id
     crsr.execute("SELECT coins FROM userinfo where userid = %s;",[userid])
     money = crsr.fetchone()
@@ -159,18 +162,22 @@ async def claim(ctx):
     conn.commit()
     scoin = str(coin)
     e = discord.Embed(title = "Currency", description = "you now have " + scoin + " coins! " + "<:DABLOON:810940045468499988>", color = 0xa1ffb0)
+    e.set_author(name = owner, icon_url = ctx.author.avatar_url)
     await ctx.send(embed=e)
 
 @claim.error
 async def claim_cooldown(ctx, error):
+    owner = str(ctx.message.author.name)
     if isinstance(error, commands.CommandOnCooldown):
         e = discord.Embed(title = "Cooldown", description = f"You can claim your coins in {error.retry_after:.2f}s.", color = 0xa1ffb0)
+        e.set_author(name = owner, icon_url = ctx.author.avatar_url)
         await ctx.send(embed=e)
 
 # Help Command, will redirect user to site to see list of command
 # Quick and easy guide to start 
 @client.command(name = "hep_cmd")
 async def hep_cmd(ctx):
+    owner = str(ctx.message.author.name)
     bl = "\n \n"
     dis = ("`.register`" + " - Set up to start playing" + bl + "`.coin`" + " - Checks your currency"
      + bl + "`.claim`" + " - Adds Coins to your account" + bl + "`.roll`" + " - Uses coins to obtain cards"
@@ -178,17 +185,20 @@ async def hep_cmd(ctx):
      + bl + "`.hep`" + " - breif explaination of GooseNeck Bot" + bl + "`.hep_cmd`" + " - list of commands and what they do"
      + bl + "`.home`" + " - Sends a link to our website")
     e = discord.Embed(title = "***Help Command***",description = dis, color = 0xa1ffb0)
+    e.set_author(name = owner, icon_url = ctx.author.avatar_url)
     await ctx.send(embed = e)
 
 # In-Depth help command, used for full list of commands
 @client.command(name = "hep")
 async def hep(ctx):
+    owner = str(ctx.message.author.name)
     dis = ("Hey! Thanks for downloading GooseNeck Bot, make sure to type `.register` to get set up and claim 50 free coins. "
     "You can get cards by typing `.roll` as long as you have coins, which you can check by typing `.coin`. "
     "If you want more coins, you can type `.claim` every 10 minutes! Typeing `.inv` will tell you how many cards you "
     "have and typing a keyword after it will show how many of those cards you have. If you ever want to see a card, feel free "
     "to type `.view` and a unique ID. Thanks again for downloading GooseNeck Bot and have fun!")
     e = discord.Embed(description = dis, color = 0xa1ffb0)
+    e.set_author(name = owner, icon_url = ctx.author.avatar_url)
     await ctx.send(embed = e)
 """
 @client.command(name = "play")
@@ -205,6 +215,7 @@ async def home(ctx):
 
 @client.command(name = "inv")
 async def inventory(ctx, name = None):
+    owner = str(ctx.message.author.name)
     userid = ctx.author.id
     username = str(ctx.author)
     user = ""
@@ -225,6 +236,7 @@ async def inventory(ctx, name = None):
         tot = str(crsr.fetchone())
         tot = remove(tot)
         e = discord.Embed(description = ("Total Cards = " + tot + "\n For a specific card enter card global id"), color = 0xa1ffb0)
+        e.set_author(name = owner, icon_url = ctx.author.avatar_url)
         await ctx.send(embed = e)
 
     elif name == "all":
@@ -272,7 +284,7 @@ async def inventory(ctx, name = None):
         lstSorted = sorted(lst,reverse=True) # sort   
         for unique, tname, rare in lstSorted:  # process embed
             embed.add_field(name=f'{tname}', value=f'> uniqueID: {unique}\n> CardName: {tname}\n> Rarity: {rare}',inline=True)
-
+        embed.set_author(name = owner, icon_url = ctx.author.avatar_url)
         await ctx.send(embed = embed)
 
     elif not real:
@@ -281,7 +293,7 @@ async def inventory(ctx, name = None):
 
     else:
         
-        embed = discord.Embed(title=f"__**{ctx.message.author.name} Inventory:**__", color = 0x03f8fc, timestamp = ctx.message.created_at)
+        embed = discord.Embed(title=f"__**{ctx.message.author.name}'s Inventory:**__", color = 0x03f8fc, timestamp = ctx.message.created_at)
         lst = []
         crsr.execute("SELECT COUNT(*) FROM " + user + " WHERE cardname = %s", [name])
         tot = str(crsr.fetchone())
@@ -324,7 +336,7 @@ async def inventory(ctx, name = None):
         lstSorted = sorted(lst,reverse=True) # sort   
         for unique, tname, rare in lstSorted:  # process embed
             embed.add_field(name = f'{name}', value = f'> uniqueID: {unique}\n> CardName: {tname}\n> Rarity: {rare}',inline = True)
-
+        embed.set_author(name = owner, icon_url = ctx.author.avatar_url)
         await ctx.send(embed = embed)
 
         '''
@@ -390,6 +402,7 @@ async def view(ctx, uniqueid = None):
 
             #card printout
             embed = discord.Embed(title = name, description = cardLayout, color = cardColor)
+            embed.set_author(name = owner, icon_url = ctx.author.avatar_url)
             embed.set_image(url=murl)
 
             await ctx.send(embed = embed)
@@ -471,7 +484,8 @@ async def roll(ctx):
 
         #card printout
         embed = discord.Embed(title = name[num-1], description = cardLayout, color = cardColor)
-        embed.set_image(url=murl)
+        embed.set_author(name = owner, icon_url = ctx.author.avatar_url)
+        embed.set_image(url = murl)
 
         #sql
         crsr.execute(insert,(name[num-1], rank[2], stot, num, td[2]))
