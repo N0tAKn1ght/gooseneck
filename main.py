@@ -152,6 +152,16 @@ async def quote(ctx):
     e.set_author(name = owner, icon_url = ctx.author.avatar_url)
     await ctx.send(embed = e)
 
+@client.command(name = "tothemoon")
+async def tothemoon(ctx):
+    owner = str(ctx.message.author.name)
+    response = requests.get("https://sochain.com//api/v2/get_price/DOGE/USD")
+    json_data = json.loads(response.text)
+    price = "The price of doge is: " + json_data['data']['prices'][0]['price']
+    e = discord.Embed(title = "***To the Moon ~***", description = price, color = 0xa1ffb0)
+    e.set_author(name = owner, icon_url = ctx.author.avatar_url)
+    await ctx.send(embed = e)
+    
 # shows how many coins you have
 @client.command(name = "coin")
 async def coin(ctx):
