@@ -22,7 +22,9 @@ print(conn.get_dsn_parameters(),"\n")
 print("Database Connected")
 
 # the prefix for commands
-client = commands.Bot(command_prefix = ".")
+intents = discord.Intents().all()
+bot = discord.Client(intents = intents)
+client = commands.Bot(command_prefix = ".",intents = intents)
 
 # token to connect discord api
 token = 'ODA4NDE1ODg5ODc1NjY0OTI3.YCGN9w.qIBD2q-uteQ_YIyEYeubBFVCNhk'
