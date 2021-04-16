@@ -577,11 +577,11 @@ async def join(ctx):
     else:
         channel = ctx.message.author.voice.channel
         await ctx.send("Goosebot is now connected.")
-    await channel.connect()
+        await channel.connect()
 
 @client.command(name='leave', help='To make the bot leave the voice channel')
 async def leave(ctx):
-    voice_client = ctx.message.guild.voice_client
+    voice_client = discord.utils.get(bot.voice_clients, guild=ctx.guild)
     if voice_client.is_connected():
         await voice_client.disconnect()
     else:
