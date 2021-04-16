@@ -4,3 +4,4 @@ asyncio
 dnspython==2.1.0
 datetime
 requests
+youtube_dl
