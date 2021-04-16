@@ -1,5 +1,5 @@
 import discord
-from discord.ext import commands, tasks
+from discord.ext import commands
 import asyncio
 import os
 import random
@@ -8,7 +8,6 @@ from datetime import datetime
 import psycopg2
 import json
 import requests
-import youtube_dl
 
 # postgres connection method
 conn = psycopg2.connect(user = "qpeynpgjkccpxh",
@@ -22,9 +21,7 @@ print(conn.get_dsn_parameters(),"\n")
 print("Database Connected")
 
 # the prefix for commands
-intents = discord.Intents().all()
-bot = discord.Client(intents = intents)
-client = commands.Bot(command_prefix = ".",intents = intents)
+client = commands.Bot(command_prefix = ".")
 
 # token to connect discord api
 token = 'ODA4NDE1ODg5ODc1NjY0OTI3.YCGN9w.qIBD2q-uteQ_YIyEYeubBFVCNhk'
@@ -152,16 +149,6 @@ async def quote(ctx):
     json_data = json.loads(response.text)
     quote = json_data[0]['q'] + " -" + json_data[0]['a']
     e = discord.Embed(title = "***Some Inspiration ~***", description = quote, color = 0xa1ffb0)
-    e.set_author(name = owner, icon_url = ctx.author.avatar_url)
-    await ctx.send(embed = e)
-
-@client.command(name = "tothemoon")
-async def tothemoon(ctx):
-    owner = str(ctx.message.author.name)
-    response = requests.get("https://sochain.com//api/v2/get_price/DOGE/USD")
-    json_data = json.loads(response.text)
-    price = "The price of doge is: " + json_data['data']['prices'][0]['price']
-    e = discord.Embed(title = "***To the Moon ~***", description = price, color = 0xa1ffb0)
     e.set_author(name = owner, icon_url = ctx.author.avatar_url)
     await ctx.send(embed = e)
 
@@ -531,97 +518,4 @@ async def roll(ctx):
         conn.commit()
         await ctx.channel.send(embed = embed)
 
-youtube_dl.utils.bug_reports_message = lambda: ''
-
-ytdl_format_options = {
-    'format': 'bestaudio/best',
-    'restrictfilenames': True,
-    'noplaylist': True,
-    'nocheckcertificate': True,
-    'ignoreerrors': False,
-    'logtostderr': False,
-    'quiet': True,
-    'no_warnings': True,
-    'default_search': 'auto',
-    'source_address': '0.0.0.0' # bind to ipv4 since ipv6 addresses cause issues sometimes
-}
-
-ffmpeg_options = {
-    'options': '-vn'
-}
-
-ytdl = youtube_dl.YoutubeDL(ytdl_format_options)
-
-class YTDLSource(discord.PCMVolumeTransformer):
-    def __init__(self, source, *, data, volume=0.5):
-        super().__init__(source, volume)
-        self.data = data
-        self.title = data.get('title')
-        self.url = ""
-
-    @classmethod
-    async def from_url(cls, url, *, loop=None, stream=False):
-        loop = loop or asyncio.get_event_loop()
-        data = await loop.run_in_executor(None, lambda: ytdl.extract_info(url, download=not stream))
-        if 'entries' in data:
-            # take first item from a playlist
-            data = data['entries'][0]
-        filename = data['title'] if stream else ytdl.prepare_filename(data)
-        return filename
-
-@client.command(name='join', help='Tells the bot to join the voice channel')
-async def join(ctx):
-    if not ctx.message.author.voice:
-        await ctx.send("{} is not connected to a voice channel".format(ctx.message.author.name))
-        return
-    else:
-        channel = ctx.message.author.voice.channel
-        await ctx.send("Goosebot is now connected.")
-        await channel.connect()
-
-@client.command(name='leave', help='To make the bot leave the voice channel')
-async def leave(ctx):
-    voice_client = discord.utils.get(bot.voice_clients, guild=ctx.guild)
-    if voice_client.is_connected():
-        await voice_client.disconnect()
-    else:
-        await ctx.send("The bot is not connected to a voice channel.")
-
-@client.command(name='play_song', help='To play song')
-async def play(ctx,url):
-    try :
-        server = ctx.message.guild
-        voice_channel = server.voice_client
-
-        async with ctx.typing():
-            filename = await YTDLSource.from_url(url, loop=client.loop)
-            voice_channel.play(discord.FFmpegPCMAudio(executable="ffmpeg.exe", source=filename))
-        await ctx.send('**Now playing:** {}'.format(filename))
-    except:
-        await ctx.send("The bot is not connected to a voice channel.")
-
-
-@client.command(name='pause', help='This command pauses the song')
-async def pause(ctx):
-    voice_client = ctx.message.guild.voice_client
-    if voice_client.is_playing():
-        await voice_client.pause()
-    else:
-        await ctx.send("The bot is not playing anything at the moment.")
-    
-@client.command(name='resume', help='Resumes the song')
-async def resume(ctx):
-    voice_client = ctx.message.guild.voice_client
-    if voice_client.is_paused():
-        await voice_client.resume()
-    else:
-        await ctx.send("The bot was not playing anything before this. Use play_song command")
-
-@client.command(name='stop', help='Stops the song')
-async def stop(ctx):
-    voice_client = ctx.message.guild.voice_client
-    if voice_client.is_playing():
-        await voice_client.stop()
-    else:
-        await ctx.send("The bot is not playing anything at the moment.")
 client.run(token)
