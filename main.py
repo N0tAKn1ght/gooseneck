@@ -237,7 +237,7 @@ async def play(ctx, url : str, channel : str):
 # User can get to our site, for more info, invite to new server, etc
 @client.command(name = "home")
 async def home(ctx):
-    e = discord.Embed(description = ("Will send user to home page site :D"), color = 0xa1ffb0)
+    e = discord.Embed(title = "Home Page", url = "https://gooseweb.herokuapp.com/home",description = ("Will send user to home page site :D"), color = 0xa1ffb0)
     await ctx.send(embed = e)
 
 # tells the user how many cards they have in their inventory
